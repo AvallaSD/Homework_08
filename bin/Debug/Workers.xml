@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ArrayOfWorker xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Worker>
+    <Id>0</Id>
+    <Name>Дмитрий</Name>
+    <Surname>Сачков</Surname>
+    <Age>22</Age>
+    <Departament>Дом</Departament>
+    <Salary>1000000</Salary>
+    <ProjectsAmount>0</ProjectsAmount>
+  </Worker>
+  <Worker>
+    <Id>1</Id>
+    <Name>Чел</Name>
+    <Surname>Какой-то</Surname>
+    <Age>15</Age>
+    <Departament>Улица</Departament>
+    <Salary>10</Salary>
+    <ProjectsAmount>10000</ProjectsAmount>
+  </Worker>
+</ArrayOfWorker>
