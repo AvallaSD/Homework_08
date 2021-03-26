@@ -126,6 +126,16 @@ namespace Homework_08
         /// </summary>
         private void DeleteByIndex()
         {
+            if (Workers.Count == 0)
+            {
+                WriteLine("База пуста. Нажмите любую клавишу длz возврата в меню");
+                ReadKey();
+                return;
+            }
+
+            Clear();
+            WriteLine(ToString());
+
             Console.WriteLine("Удаление сотрудника из базы. Введите индекс:");
             
             int index = InputInt();
@@ -145,9 +155,18 @@ namespace Homework_08
         private void EditByIndex()
         {
             Clear();
+            WriteLine(ToString());
             WriteLine("Редактирование информации о сотруднике. Введите индекс сотрудника");
+            
+           
 
             int index = InputInt();
+
+            while (index < 0 || index >= Workers.Count())
+            {
+                WriteLine("Неверный индекс. Повторите ввод: ");
+                index = InputInt();
+            }
 
             WriteLine("Выберите свойство, которое хотите изменить:");
             var propertiesToEdit = typeof(Worker).GetProperties().Where(x => x.Name != "Id").ToList();
@@ -155,7 +174,13 @@ namespace Homework_08
 
 
             int des = InputInt() - 1;
-            des--;
+
+            while (des < 0 || des >= propertiesToEdit.Count())
+            {
+                WriteLine("Неверно выбрано свойство. Повторите ввод: ");
+                des = InputInt() - 1;
+            }
+
             WriteLine("Введите новое значение: ");
             var editingWorker = Workers[index];
             
