@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Newtonsoft.Json;
-using static System.Console;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Serialization;
+using static System.Console;
 
 namespace Homework_08
 {
@@ -42,7 +41,7 @@ namespace Homework_08
             {
                 Clear();
                 WriteLine("Главное меню:");
-                WriteLine("1) Добавить сотрудника \n2) Удалить сотрудника \n3) Редактировать информацию о сотруднике\n4) Печать базы\n5) Записать XML\n6) Прочитать XML\n7) Записать JSON\n8) Прочитать JSON\n9) Выход");
+                WriteLine("1) Добавить сотрудника \n2) Удалить сотрудника \n3) Редактировать информацию о сотруднике\n4) Печать базы\n5) Записать XML\n6) Прочитать XML\n7) Записать JSON\n8) Прочитать JSON\n9) Сортировка\n0) Выход");
                 switch (ReadKey().KeyChar)
                 {
                     case '1':
@@ -72,12 +71,25 @@ namespace Homework_08
                         DeserialiseWorkerJSON();
                         break;
                     case '9':
+                        Sort();
+                        break;
+                    case '0':
                         flag = false;
                         break;
                     default:
                         break;
                 }
             }
+        }
+
+        public void Sort()
+        {
+            WriteLine("Выберите свойство для сортировки:");
+            var propertiesToSort = new List<PropertyInfo>();
+            int des = GetAndSelectWorkerProperty(out propertiesToSort);
+            var property = propertiesToSort[des];
+
+            Workers = Workers.OrderBy(x=>property.GetValue(x)).ToList();
         }
 
         /// <summary>
@@ -94,7 +106,7 @@ namespace Homework_08
         /// Добавление сотрудника
         /// </summary>
         private void AddWorker()
-        {    
+        {
             Console.Clear();
             int id = Workers.Count;
             Console.WriteLine("Добавление сотрудника в базу:");
@@ -118,7 +130,7 @@ namespace Homework_08
             Console.Write("Количество проектов: ");
             int projectsAmount = InputInt();
 
-            Workers.Add(new Worker {Id = id, Age = age, Departament = departament, Name = name, ProjectsAmount = projectsAmount, Salary = salary, Surname = surname});
+            Workers.Add(new Worker { Id = id, Age = age, Departament = departament, Name = name, ProjectsAmount = projectsAmount, Salary = salary, Surname = surname });
         }
 
         /// <summary>
@@ -137,7 +149,7 @@ namespace Homework_08
             WriteLine(ToString());
 
             Console.WriteLine("Удаление сотрудника из базы. Введите индекс:");
-            
+
             int index = InputInt();
             while (Workers.Count <= index)
             {
@@ -146,7 +158,7 @@ namespace Homework_08
             }
             DoWithDepartment(Workers[index].Name, x => x.WorkersAmount--);
             Workers.RemoveAt(index);
-            
+
         }
 
         /// <summary>
@@ -154,11 +166,19 @@ namespace Homework_08
         /// </summary>
         private void EditByIndex()
         {
+
+            if (Workers.Count == 0)
+            {
+                WriteLine("База пуста. Нажмите любую клавишу длz возврата в меню");
+                ReadKey();
+                return;
+            }
+
             Clear();
             WriteLine(ToString());
             WriteLine("Редактирование информации о сотруднике. Введите индекс сотрудника");
-            
-           
+
+
 
             int index = InputInt();
 
@@ -169,21 +189,14 @@ namespace Homework_08
             }
 
             WriteLine("Выберите свойство, которое хотите изменить:");
-            var propertiesToEdit = typeof(Worker).GetProperties().Where(x => x.Name != "Id").ToList();
-            propertiesToEdit.ForEach(x => WriteLine($"{propertiesToEdit.IndexOf(x) + 1}) {x.Name}"));
 
+            var propertiesToEdit = new List<PropertyInfo>();
 
-            int des = InputInt() - 1;
-
-            while (des < 0 || des >= propertiesToEdit.Count())
-            {
-                WriteLine("Неверно выбрано свойство. Повторите ввод: ");
-                des = InputInt() - 1;
-            }
+            int des = GetAndSelectWorkerProperty(out propertiesToEdit);
 
             WriteLine("Введите новое значение: ");
             var editingWorker = Workers[index];
-            
+
             if (propertiesToEdit[des].PropertyType == typeof(int))
             {
                 int intValue = InputInt();
@@ -191,7 +204,7 @@ namespace Homework_08
             }
             else
             {
-                string strValue = ReadLine();         
+                string strValue = ReadLine();
                 if (propertiesToEdit[des].Name == "Departament")
                 {
                     DoWithDepartment(editingWorker.Departament, x => x.WorkersAmount--);
@@ -247,7 +260,7 @@ namespace Homework_08
             while (!int.TryParse(Console.ReadLine(), out intValue))
             {
                 Console.WriteLine("Неверный формат ввода. Повторите ввод:");
-                
+
             }
             return intValue;
         }
@@ -267,6 +280,23 @@ namespace Homework_08
             {
                 DoWithDepartment(depName, x => x.WorkersAmount++);
             }
+        }
+
+        private int GetAndSelectWorkerProperty(out List<PropertyInfo> properties)
+        {
+            var propertiesProto = typeof(Worker).GetProperties().Where(x => x.Name != "Id").ToList();
+            propertiesProto.ForEach(x => WriteLine($"{propertiesProto.IndexOf(x) + 1}) {x.Name}"));
+
+
+            int des = InputInt() - 1;
+
+            while (des < 0 || des >= propertiesProto.Count())
+            {
+                WriteLine("Неверно выбрано свойство. Повторите ввод: ");
+                des = InputInt() - 1;
+            }
+            properties = propertiesProto;
+            return des;
         }
     }
 }
